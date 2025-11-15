@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>BrandPulse Dashboard</title>
+    <meta http-equiv="refresh" content="15"> 
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        h1, h2, h3 { margin-top: 20px; }
+        table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .alert { color: red; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>BrandPulse Dashboard</h1>
+
+    {% if alert %}
+        <h3 class="alert">{{ alert }}</h3>
+    {% endif %}
+
+    <h2>Sentiment Summary</h2>
+    <canvas id="sentimentChart" width="400" height="200"></canvas>
+
+    {{ sentiment_count|json_script:"sentiment-data" }}
+
+    <script>
+        const sentimentData = JSON.parse(document.getElementById('sentiment-data').textContent);
+
+        const positive = sentimentData.Positive || 0;
+        const neutral = sentimentData.Neutral || 0;
+        const negative = sentimentData.Negative || 0;
+
+        const ctx = document.getElementById('sentimentChart').getContext('2d');
+        const sentimentChart = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: ['Positive', 'Neutral', 'Negative'],
+                datasets: [{
+                    label: 'Mentions',
+                    data: [positive, neutral, negative],
+                    backgroundColor: [
+                        'rgba(75, 192, 192, 0.6)',
+                        'rgba(201, 203, 207, 0.6)',
+                        'rgba(255, 99, 132, 0.6)'
+                    ],
+                    borderColor: [
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(201, 203, 207, 1)',
+                        'rgba(255, 99, 132, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'bottom' }
+                }
+            }
+        });
+    </script>
+
+    <h2>Recent Mentions</h2>
+    <table>
+        <tr>
+            <th>Platform</th>
+            <th>Content</th>
+            <th>Sentiment</th>
+            <th>Topic</th>
+            <th>Time</th>
+        </tr>
+        {% for mention in mentions %}
+        <tr>
+            <td>{{ mention.platform }}</td>
+            <td>{{ mention.content }}</td>
+            <td>{{ mention.sentiment }}</td>
+            <td>{{ mention.topic }}</td>
+            <td>{{ mention.created_at|date:"Y-m-d H:i" }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="5" style="text-align:center;">No mentions available.</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>
