@@ -105,6 +105,6 @@ python main.py
 ---
 
 
-## ⚠️ Disclaimer
+##  Disclaimer
 
 This project is for educational and portfolio purposes only. No private or real-time social media data is used.
